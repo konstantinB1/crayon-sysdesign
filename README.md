@@ -32,6 +32,13 @@ There is wide array of possibilities to choose from when it comes to state manag
 We can go either way, but all the benefits mentioned above, and for author's familiarity, and experience i would go with **Redux Toolkit** - `@reduxjs/toolkit` package.
 Great thing about RTK is built in support for auto generating endpoints based on backend schema. It has full support for parsing OpenApi3 spec defined schemas, which will in turn generate all the endpoints with full `Typescript` type support for those types. It reduces boilerplate code of having to manually sync server/client data contracts among other things. This approach of course demands that the backend has its endpoints defined in OAS3 spec, and those schemas are exportable, and consumable by RTK cli.
 
+## Offline Data
+Service workers will be registered when app is loaded first time, and remembered on future visits. Cache Storage API can handle all the incoming network requests used via Fetch API which in turn is used in RTK `fetchFn` parameter, so all RTK related data is synced with service workers. Checking for offline or online can be done via native event listeners available in browser, or by truncating a Fetch error message response, and storing global variable in RTK Store slice, to indicate app's status.
+
+## Internationalisation
+Support for internationalisation can be done via `react-i18next` package. Data coming from the backend should be aware what language is used, and do the translations for specific quotes on the server side. Client can take a hybrid approach of storing dedicated json files, for specific language keys that are hard coded. 
+Dates and prices, can be localised either using the package itself, or by utilising `Intl` browser API available in all major browsers, though former is a more cleaner way to go.
+
 ## Component Overview
 #### Layout
 Wraps the overlay with framework's style providers, global state store, register `SnackbarContext`, and registers routes that will work in browser.  Component should take care of adjusting appropriate width when it comes to responsive design to work on mobile, tablet, desktop, and bigger devices such as TV.
@@ -190,7 +197,7 @@ The table data should be stored in RTK cache, and invalidate once PUT/POST/PATCH
 
 **Endpoint** `/quotes`
 
-**Body JSON Schema**
+**Body Example**
 
     {
        "price": 400,
@@ -493,6 +500,8 @@ When user access the route, it will immediately call an endpoint to fetch data f
 
 Establishing a handshake request to web socket protocol in the initial GET request
 
+### GET
+
 **Endpoint** `\collab\{quote-id}?offset=[n]`
 
 **Path params**
@@ -605,7 +614,10 @@ Example successful GET response
       ]
     }
 
-
-
 ### The UI
-The UI is similar to the Collaboration tab, in a sense it uses the same key component - `Timeline`. Data is stored inside RTK cache on the client, and updates - update the cache entry.  The network is greatly simplified in contrast to Collaboration tab, as we don't have filter.
+The UI is similar to the Collaboration tab, in a sense it uses the same key component - `Timeline`. Data is stored inside RTK cache on the client, and updates - update the cache entry.  The network is greatly simplified in contrast to Collaboration tab, as we don't have filter. `offset` will take care in same way as in the Collaboration tab of fetching the data in the infinite list, where `n` in the `offset` is the actual `id` (activity id).
+
+Errors could be handled with a red icon if an sse event currently breaks, to indicate with additional `Tooltip` component that timeline is not in sync
+
+# Conclusion
+I didn't cover 100% from the design spec, i would gladly speak about topics, or different approaches to this spec if you decide to proceed further. Thank you :)
